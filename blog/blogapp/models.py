@@ -1,4 +1,5 @@
 from django.db import models
+from usersapp.models import BlogUser
 
 # 3 типа наследования: abstract, классическое, proxy
 
@@ -16,8 +17,12 @@ class TimeStamp(models.Model):
 
 # Create your models here.
 class Category(models.Model):
-    name = models.CharField(max_length=16, unique=True)
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=16, unique=True, verbose_name='Name')
+    description = models.TextField(blank=True, verbose_name='Desc')
+
+    class Meta:
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
 
      # Основные типы полей
     # дата
@@ -60,7 +65,8 @@ class Post(TimeStamp):
     # Связь с тегом (много много)
     tags = models.ManyToManyField(Tag)
     # Картинка (2 варианта хранения - 1. В базе, 2. На диске)
-    image = models.ImageField(upload_to='posts', null=True, blank=True)        
+    image = models.ImageField(upload_to='posts', null=True, blank=True)
+    user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)      
 
     def __str__(self):
         return self.name

@@ -66,10 +66,19 @@ class Post(TimeStamp):
     tags = models.ManyToManyField(Tag)
     # Картинка (2 варианта хранения - 1. В базе, 2. На диске)
     image = models.ImageField(upload_to='posts', null=True, blank=True)
-    user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)      
+    user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)
+
+    def has_image(self):
+        print('my image:', self.image)
+        print('type', type(self.image))
+        return bool(self.image)
+    
+    def some_method(self):
+        return 'hello from method'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}, category: {self.category.name}'
+
     
 # Классическое наследование
 class CoreObject(models.Model):

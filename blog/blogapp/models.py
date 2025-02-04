@@ -67,6 +67,7 @@ class Post(TimeStamp):
     # Картинка (2 варианта хранения - 1. В базе, 2. На диске)
     image = models.ImageField(upload_to='posts', null=True, blank=True)
     user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(default=1)
 
     def has_image(self):
         print('my image:', self.image)
@@ -78,6 +79,11 @@ class Post(TimeStamp):
 
     def __str__(self):
         return f'{self.name}, category: {self.category.name}'
+    
+    def display_tags(self):
+        tags = self.tags.all()
+        result = ';'.join([item.name for item in tags])
+        return result
 
     
 # Классическое наследование

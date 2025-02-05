@@ -1,19 +1,35 @@
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.core.mail import send_mail
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views.generic.base import ContextMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import Post, Tag
-from .forms import ContactForm, PostForm
+from .models import Post, Tag, Category
+from .forms import ContactForm, PostForm, PostCategoryForm
 
 
 # Create your views here.
 def main_view(request):
-    posts = Post.objects.all()
-    return render(request, 'blogapp/index.html', context={'posts': posts})
+    # posts = Post.objects.filter(is_active=True)
+    posts = Post.active_objects.all()
+    paginator= Paginator(posts, 2)
+
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        posts = paginator.page(paginator.num_pages)
+
+    title = 'главная страница'
+    # title = title.capitalize()
+    return render(request, 'blogapp/index.html', context={'posts': posts, 'title': title})
 
 def contact_view(request):
     if request.method == 'POST':
@@ -73,11 +89,12 @@ class TagListView(ListView, NameContextMixin):
     model = Tag
     template_name = 'blogapp/tag_list.html'
     context_object_name ='tags'
+    paginate_by = 10
 
    
     # Получение данных
     def get_queryset(self):
-        return Tag.objects.all()
+        return Tag.active_objects.all()
 
 # Детальная информация
 class TagDetailView(UserPassesTestMixin, DetailView, NameContextMixin):
@@ -130,3 +147,33 @@ class TagDeleteView(DeleteView):
     template_name = 'blogapp/tag_delete_confirm.html'
     model = Tag
     success_url = reverse_lazy('blog:tag_list')
+
+class CategoryDetailView(DeleteView):
+    template_name = 'blogapp/category_detail.html'
+    model = Category
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PostCategoryForm()
+        return context
+    
+    
+class PostCategoryCreateView(CreateView):
+    model = Post
+    template_name = 'blogapp/category_detail.html'
+    success_url = reverse_lazy('')
+    form_class = PostCategoryForm
+
+    def post(self, request, *args, **kwargs):
+        self.category_pk = kwargs['pk']
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.user = user
+        category = get_object_or_404(Category, pk=self.category_pk)
+        form.instance.category = category
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('blog:category_detail', kwargs={'pk': self.category_pk})

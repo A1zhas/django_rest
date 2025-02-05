@@ -2,6 +2,24 @@ from django.db import models
 from usersapp.models import BlogUser
 
 # 3 типа наследования: abstract, классическое, proxy
+class ActiveManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
+
+class IsActiveMixin(models.Model):
+    objects = models.Manager()
+    active_objects = ActiveManager()
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+# class UpdatedObjectsManager(models.Manager):
+#     def get_queryset(self):
+#         # Дата обновления не равна дате создания
+#         return super().get_queryset().filter(update=?)
 
 # Abstact
 class TimeStamp(models.Model):
@@ -50,24 +68,30 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-class Tag(models.Model):
+
+    
+
+class Tag(IsActiveMixin):
     name = models.CharField(max_length=16, unique=True)
 
     def __str__(self):
         return self.name
 
-class Post(TimeStamp):
+
+
+class Post(TimeStamp, IsActiveMixin):
     name = models.CharField(max_length=32, unique=True)
     text = models.TextField()
 
     # Связь с категорией (один много)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_posts')
     # Связь с тегом (много много)
     tags = models.ManyToManyField(Tag)
     # Картинка (2 варианта хранения - 1. В базе, 2. На диске)
     image = models.ImageField(upload_to='posts', null=True, blank=True)
     user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(default=1)
+    
 
     def has_image(self):
         print('my image:', self.image)
@@ -82,7 +106,7 @@ class Post(TimeStamp):
     
     def display_tags(self):
         tags = self.tags.all()
-        result = ';'.join([item.name for item in tags])
+        result = "; ".join([item.name for item in tags])
         return result
 
     

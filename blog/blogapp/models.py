@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import F
 from usersapp.models import BlogUser
+from django.utils.functional import cached_property
 
 # 3 типа наследования: abstract, классическое, proxy
 class ActiveManager(models.Manager):
@@ -16,10 +18,12 @@ class IsActiveMixin(models.Model):
     class Meta:
         abstract = True
 
-# class UpdatedObjectsManager(models.Manager):
-#     def get_queryset(self):
-#         # Дата обновления не равна дате создания
-#         return super().get_queryset().filter(update=?)
+class UpdatedObjectsManager(models.Manager):
+
+    def get_queryset(self):
+        all_objects = super().get_queryset()
+        # Дата обновления не равна дата содания F - запрос
+        return all_objects.filter(update=F('create'))
 
 # Abstact
 class TimeStamp(models.Model):
@@ -28,7 +32,7 @@ class TimeStamp(models.Model):
     данные хранятся в каждом наследнике
     """
     create = models.DateTimeField(auto_now_add=True)
-    update = models.DateTimeField(auto_now=True)
+    update = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         abstract = True
@@ -91,6 +95,11 @@ class Post(TimeStamp, IsActiveMixin):
     image = models.ImageField(upload_to='posts', null=True, blank=True)
     user = models.ForeignKey(BlogUser, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(default=1)
+
+    @cached_property
+    def get_all_tags(self):
+        tags = Tag.objects.all()
+        return tags
     
 
     def has_image(self):

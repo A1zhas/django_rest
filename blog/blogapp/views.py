@@ -14,8 +14,8 @@ from .forms import ContactForm, PostForm, PostCategoryForm
 # Create your views here.
 def main_view(request):
     # posts = Post.objects.filter(is_active=True)
-    posts = Post.active_objects.all()
-    paginator= Paginator(posts, 2)
+    posts = Post.active_objects.select_related('category', 'user').all()
+    paginator= Paginator(posts, 5)
 
     page = request.GET.get('page')
     try:
@@ -59,6 +59,10 @@ def contact_view(request):
 @user_passes_test(lambda u: u.is_superuser)
 def post(request, id):
     post = get_object_or_404(Post, id=id)
+
+    all_tags = post.get_all_tags
+    for item in all_tags:
+        print(item)
     return render(request, 'blogapp/post.html', context={'post': post})
 
 @login_required

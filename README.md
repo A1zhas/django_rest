@@ -1,1 +1,1 @@
-# test_django_blog
+# django_rest

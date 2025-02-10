@@ -86,6 +86,7 @@ class Tag(IsActiveMixin):
 class Post(TimeStamp, IsActiveMixin):
     name = models.CharField(max_length=32, unique=True)
     text = models.TextField()
+    
 
     # Связь с категорией (один много)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_posts')

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-0s@xu8@*q=@_+t7tbygv8w9zf%j3!m&b1!b=&l2!8@4dpkaae$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -41,7 +41,10 @@ INSTALLED_APPS = [
     'blogapp',
     'usersapp',
     'capapp',
-    'debug_toolbar'
+    'debug_toolbar',
+    'rest_framework',
+    # django_cleanup в конце
+    'django_cleanup'
 ]
 
 MIDDLEWARE = [
@@ -52,7 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'blog.urls'
@@ -81,19 +84,20 @@ WSGI_APPLICATION = 'blog.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # },
-
     'default': {
-        'NAME': 'sitedb',
-        'ENGINE': 'django.db.backends.postgresql',
-        'USER': 'django',
-        'PASSWORD': 'nu123456',
-        'HOST': 'localhost'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+# Postgresql
+#     'default': {
+#         'NAME': 'sitedb',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'USER': 'django',
+#         'PASSWORD': 'nu123456',
+#         'HOST': 'localhost'
+#     }
+# }
 
 
 # Password validation
@@ -162,3 +166,12 @@ INTERNAL_IPS = [
     '127.0.0.1',
     # ...
 ]
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}

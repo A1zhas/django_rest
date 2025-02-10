@@ -17,11 +17,29 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
+from blogapp.api_views import CategoryViewSet, PostViewSet
+
+# router = routers.DefaultRouter()
+# router.register(r'categories', CategoryViewSet)
+
+# router_p = routers.DefaultRouter()
+# router_p.register(r'posts', PostViewSet)
+
+router = routers.DefaultRouter()
+router.register(r'categories', CategoryViewSet)
+router.register(r'posts', PostViewSet)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blogapp.urls', namespace='blog')),
-    path('users/', include('usersapp.urls', namespace='users'))
+    path('users/', include('usersapp.urls', namespace='users')),
+    path('api-auth/', include('rest_framework.urls')),
+    # path('api/v0/categories/', include(router.urls)),
+    # path('api/v0/posts/', include(router_p.urls)),
+    path('api/v0/', include(router.urls)),
 ]
 
 if settings.DEBUG:

@@ -15,7 +15,7 @@ from .forms import ContactForm, PostForm, PostCategoryForm
 def main_view(request):
     # posts = Post.objects.filter(is_active=True)
     posts = Post.active_objects.select_related('category', 'user').all()
-    paginator= Paginator(posts, 5)
+    paginator= Paginator(posts, 3)
 
     page = request.GET.get('page')
     try:

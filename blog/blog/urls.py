@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
-from blogapp.api_views import CategoryViewSet, PostViewSet
+from blogapp.api_views import CategoryViewSet, PostViewSet, TagViewSet
 
 # router = routers.DefaultRouter()
 # router.register(r'categories', CategoryViewSet)
@@ -29,6 +29,7 @@ from blogapp.api_views import CategoryViewSet, PostViewSet
 router = routers.DefaultRouter()
 router.register(r'categories', CategoryViewSet)
 router.register(r'posts', PostViewSet)
+router.register(r'tags', TagViewSet)
 
 
 

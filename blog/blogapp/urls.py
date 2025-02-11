@@ -16,4 +16,5 @@ urlpatterns = [
     
     path('category-detail/<int:pk>/', views.CategoryDetailView.as_view(), name='category_detail'),
     path('post-category-create/<int:pk>', views.PostCategoryCreateView.as_view(), name='post_category_create'),
+    path('simple/', views.SimpleMainAjax.as_view(), name='simple_ajax'),
 ]
